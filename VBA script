@@ -41,7 +41,7 @@ Sub MultipleYearStock()
                 
                 If openticker <> 0 Then
                 
-                    percent_change = YearlyChange / openticker
+                    percent_change = FormatPercent((YearlyChange / openticker), 2, vbTrue, vbFalse)
                     
                 Else
                 
