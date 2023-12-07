@@ -1,103 +1,105 @@
 Sub MultipleYearStock()
-
-'function for all sheets in this project
-For Each ws In ThisWorkbook.Worksheets
     
-    'declaring variables
-    Dim Ticker_Name As String
-    Dim stock_vol As Variant
-    stock_vol = 0
-    Dim YearlyChange As Double
-    Dim SummaryRow As Integer
-    SummaryRow = 2
-    Dim percent_change As Variant
-    Dim ColumnA As Long
+    Dim ws As Worksheet
     
-    'defining the table
-    ws.Range("I1").Value = "Ticker"
-    ws.Range("J1").Value = "Yearly Change"
-    ws.Range("K1").Value = "Percentage Change"
-    ws.Range("L1").Value = "Total Stock Volume"
-
-    'declaring that it takes up to the last value of column A
-    ColumnA = ws.Cells(Rows.count, 1).End(xlUp).Row
-    openticker = ws.Cells(2, 3).Value
-    
-    
-    isFirstTicker = True
-    
-    'open conditional statement
-    For i = 2 To ColumnA
-    
-         stock_vol = stock_vol + ws.Cells(i, 7).Value
-    
-        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    'function for all sheets in this project
+    For Each ws In ThisWorkbook.Worksheets
+        
+       'declaring variables
+        Dim Ticker_Name As String
+        Dim stock_vol As Double
+        stock_vol = 0
+        Dim YearlyChange As Double
+        Dim SummaryRow As Integer
+        SummaryRow = 2
+        Dim percent_change As Double
+        Dim ColumnA As Long
+        
+        'defining the table
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percentage Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        
+        'declaring that it takes up to the last value of column A
+        ColumnA = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        
+        Dim openticker As Variant
+        openticker = ws.Cells(2, 3).Value
+        
+        isFirstTicker = True
+        
+        'open conditional statement
+        For i = 2 To ColumnA
+            stock_vol = stock_vol + ws.Cells(i, 7).Value
             
-            Ticker_Name = ws.Cells(i, 1).Value
-            
-            openticker = ws.Cells(Application.Match(Ticker_Name, Range("A:A"), 0), 3).Value
-            closeticker = ws.Cells(i, 6).Value
-            YearlyChange = closeticker - openticker
-            
-            If openticker <> 0 Then
-            
-                percent_change = FormatPercent((YearlyChange / openticker), 2, vbTrue, vbFalse)
-                 
-            Else
-            
-            percent_change = 0
-            
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                Ticker_Name = ws.Cells(i, 1).Value
+                
+                closeticker = ws.Cells(i, 6).Value
+                YearlyChange = closeticker - openticker
+                
+                If openticker <> 0 Then
+                
+                    percent_change = YearlyChange / openticker
+                    
+                Else
+                
+                    percent_change = 0
+                    
+                End If
+                
+                'declaring values
+                ws.Range("I" & SummaryRow).Value = Ticker_Name
+                ws.Range("J" & SummaryRow).Value = YearlyChange
+                ws.Range("K" & SummaryRow).Value = percent_change
+                ws.Range("L" & SummaryRow).Value = stock_vol
+                
+                'cells colors
+                If YearlyChange > 0 Then
+                
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
+                    
+                Else
+                
+                    ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
+                    
+                  'end conditional statement
+                End If
+                
+                SummaryRow = SummaryRow + 1
+                openticker = ws.Cells(i + 1, 3).Value
+                stock_vol = 0
+                
             End If
-             
-            'declaring values
-            ws.Range("I" & SummaryRow).Value = Ticker_Name
-            ws.Range("J" & SummaryRow).Value = YearlyChange
-            ws.Range("K" & SummaryRow).Value = percent_change
-            ws.Range("L" & SummaryRow).Value = stock_vol
             
-        
-        'cells colors
-        If YearlyChange > 0 Then
-        
-            ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
-            
-        Else
-        
-            ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
-            
-        'end conditional statement
-        End If
-            
-            SummaryRow = SummaryRow + 1
-            openticker = ws.Cells(i + 1, 3).Value
-            stock_vol = 0
-            
-        End If
-        
-        
-    Next i
+        Next i
         
         'declaring new variables
-        Dim max_increase As Variant
-        Dim max_decrease As Variant
-        Dim max_volume As Variant
-    
-       'defining the new table
+        Dim max_increase As Double
+        Dim max_decrease As Double
+        Dim max_volume As Double
+        
+        'defining the new table
         ws.Range("O1").Value = "Ticker"
         ws.Range("P1").Value = "Value"
         ws.Range("N2").Value = "Greatest % Increase"
         ws.Range("N3").Value = "Greatest % Decrease"
         ws.Range("N4").Value = "Greatest Total Volume"
         
-        'declaring operations forecong table
+        'declaring operations for the new table
         max_increase = Application.WorksheetFunction.Max(ws.Range("K2:K" & SummaryRow))
         max_decrease = Application.WorksheetFunction.Min(ws.Range("K2:K" & SummaryRow))
-        max_volume = Application.WorksheetFunction.Max(ws.Range("L2:K" & SummaryRow))
-    
+        max_volume = Application.WorksheetFunction.Max(ws.Range("L2:L" & SummaryRow))
+        
+        Dim max_increase_ticker As Variant
+        Dim max_decrease_ticker As Variant
+        Dim max_volume_ticker As Variant
+        
         max_increase_ticker = ws.Cells(Application.WorksheetFunction.Match(max_increase, ws.Range("K2:K" & SummaryRow), 0) + 1, 9).Value
         max_decrease_ticker = ws.Cells(Application.WorksheetFunction.Match(max_decrease, ws.Range("K2:K" & SummaryRow), 0) + 1, 9).Value
         max_volume_ticker = ws.Cells(Application.WorksheetFunction.Match(max_volume, ws.Range("L2:L" & SummaryRow), 0) + 1, 9).Value
-    
+        
         'declaring values
         ws.Range("O2").Value = max_increase_ticker
         ws.Range("O3").Value = max_decrease_ticker
@@ -108,5 +110,4 @@ For Each ws In ThisWorkbook.Worksheets
         
     Next ws
     
-              
 End Sub
